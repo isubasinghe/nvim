@@ -10,9 +10,9 @@ vim.opt.background='dark'
 vim.opt.mouse = 'a'
 vim.opt.completeopt='menuone,noselect'
 
+
 local use = require('packer').use
-
-
+vim.g.nvim_tree_quit_on_open = 1
 
 require('packer').startup(function()
   use 'wbthomason/packer.nvim'
@@ -24,7 +24,13 @@ require('packer').startup(function()
     run = ':TSUpdate'
   }
   use { 'nvim-telescope/telescope.nvim', requires = { 'nvim-lua/plenary.nvim' } }
-  use { 'lewis6991/gitsigns.nvim', requires = { 'nvim-lua/plenary.nvim' } }
+  use { 
+    'lewis6991/gitsigns.nvim', 
+    requires = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require('gitsigns').setup()
+    end
+  }
   use 'neovim/nvim-lspconfig'
   use 'hrsh7th/cmp-nvim-lsp'
   use 'hrsh7th/cmp-buffer'
@@ -44,11 +50,6 @@ require('packer').startup(function()
       }
     end
   }
-  use {
-    'ms-jpq/chadtree',
-    branch = 'chad',
-    run = 'python3 -m chadtree deps'
-  }
   use { 
     "nvim-neorg/neorg",
     config = function()
@@ -61,7 +62,8 @@ require('packer').startup(function()
                     config = {
                         workspaces = {
                             my_workspace = "~/neorg"
-                        }
+                        },
+                        engine = "nvim-cmp"
                     }
                 }
             },
@@ -74,9 +76,13 @@ require('packer').startup(function()
   use 'b3nj5m1n/kommentary'
   use "Pocco81/Catppuccino.nvim"
   use 'ggandor/lightspeed.nvim'
-
-
-
+  use 'herringtondarkholme/yats.vim'
+  use {
+    'kyazdani42/nvim-tree.lua',
+    requires = 'kyazdani42/nvim-web-devicons',
+    config = function() require'nvim-tree'.setup {} end
+  }
+  use 'lervag/vimtex'
 end)
 
 local catppuccino = require("catppuccino")
@@ -141,8 +147,23 @@ catppuccino.setup(
 
 
 -- Lua
-vim.cmd[[colorscheme catppuccino]]
+-- vim.cmd[[colorscheme catppuccino]]
+vim.cmd[[colorscheme palenight]]
 
+
+local parser_configs = require('nvim-treesitter.parsers').get_parser_configs()
+
+parser_configs.norg = {
+    install_info = {
+        url = "https://github.com/nvim-neorg/tree-sitter-norg",
+        files = { "src/parser.c", "src/scanner.cc" },
+        branch = "main"
+    },
+}
+
+require('nvim-treesitter.configs').setup {
+	ensure_installed = { "norg", "haskell", "cpp", "c", "rust", "javascript", "typescript" }
+}
 
 local nvimlsp = require('lspconfig')
 
@@ -234,3 +255,5 @@ require'nvim-web-devicons'.setup {
 
 require('kommentary.config').use_extended_mappings()
 
+
+vim.api.nvim_command([[autocmd VimEnter * NvimTreeOpen]])
