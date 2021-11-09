@@ -264,3 +264,5 @@ vim.g.tex_conceal='abdmg'
 
 --NvimTree
 vim.api.nvim_command([[autocmd VimEnter * NvimTreeOpen]])
+
+vim.api.nvim_set_keymap('', '<space>ff', ':NvimTreeToggle<cr>', { silent = true, noremap = true })
