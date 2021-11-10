@@ -83,6 +83,7 @@ require('packer').startup(function()
     config = function() require'nvim-tree'.setup {} end
   }
   use 'lervag/vimtex'
+  use 'neovimhaskell/haskell-vim'
 end)
 
 local catppuccino = require("catppuccino")
@@ -228,7 +229,7 @@ cmp.setup({
 })
 
 
-local servers = {'rls', 'ccls', 'tsserver', 'pyright'}
+local servers = {'rust_analyzer', 'ocamllsp', 'ccls', 'tsserver', 'pyright', 'hls', 'texlab'}
 
 for _,lsp in ipairs(servers) do 
   nvim_lsp[lsp].setup {
@@ -236,6 +237,7 @@ for _,lsp in ipairs(servers) do
     capabilities = capabilities,
   }
 end
+
 
 
 require'nvim-web-devicons'.setup {
