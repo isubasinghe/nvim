@@ -95,6 +95,11 @@ _G.packer_plugins = {
     path = "/home/isubasinghe/.local/share/nvim/site/pack/packer/start/glow.nvim",
     url = "https://github.com/ellisonleao/glow.nvim"
   },
+  ["haskell-vim"] = {
+    loaded = true,
+    path = "/home/isubasinghe/.local/share/nvim/site/pack/packer/start/haskell-vim",
+    url = "https://github.com/neovimhaskell/haskell-vim"
+  },
   kommentary = {
     loaded = true,
     path = "/home/isubasinghe/.local/share/nvim/site/pack/packer/start/kommentary",
