@@ -84,6 +84,8 @@ require('packer').startup(function()
   }
   use 'lervag/vimtex'
   use 'neovimhaskell/haskell-vim'
+  use 'andy-morris/happy.vim'
+  use 'andy-morris/alex.vim'
 end)
 
 local catppuccino = require("catppuccino")
@@ -268,3 +270,6 @@ vim.g.tex_conceal='abdmg'
 vim.api.nvim_command([[autocmd VimEnter * NvimTreeOpen]])
 
 vim.api.nvim_set_keymap('', '<space>ff', ':NvimTreeToggle<cr>', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('', '<space>gg', ':Neogit<cr>', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('', '<space>tt', ':Telescope<cr>', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('', '<space>tg', ':Telescope<space>grep_string<cr>', { silent = true, noremap = true })
