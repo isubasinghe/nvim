@@ -3,7 +3,7 @@ vim.opt.number = true
 vim.opt.termguicolors=true
 vim.opt.expandtab=true
 vim.opt.tabstop=2
-vim.opt.smartindent=true
+vim.opt.smartindent=false
 vim.opt.shiftwidth=2
 vim.opt.softtabstop=2
 vim.opt.background='dark'
@@ -50,31 +50,10 @@ require('packer').startup(function()
       }
     end
   }
-  use { 
-    "nvim-neorg/neorg",
-    config = function()
-        require('neorg').setup {
-            -- Tell Neorg what modules to load
-            load = {
-                ["core.defaults"] = {}, -- Load all the default modules
-                ["core.norg.concealer"] = {}, -- Allows for use of icons
-                ["core.norg.dirman"] = { -- Manage your directories with Neorg
-                    config = {
-                        workspaces = {
-                            my_workspace = "~/neorg"
-                        },
-                        engine = "nvim-cmp"
-                    }
-                }
-            },
-        }
-    end,
-    requires = "nvim-lua/plenary.nvim"
-  }
-  use {"ellisonleao/glow.nvim"}
+  use 'ellisonleao/glow.nvim'
   use 'sbdchd/neoformat'
   use 'b3nj5m1n/kommentary'
-  use "Pocco81/Catppuccino.nvim"
+  use 'catppuccin/nvim'
   use 'ggandor/lightspeed.nvim'
   use 'herringtondarkholme/yats.vim'
   use {
@@ -86,12 +65,18 @@ require('packer').startup(function()
   use 'neovimhaskell/haskell-vim'
   use 'andy-morris/happy.vim'
   use 'andy-morris/alex.vim'
+  use 'neomake/neomake'
+  use 'mfussenegger/nvim-dap'
+  use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
+  use 'theHamsta/nvim-dap-virtual-text'
+  use 'fatih/vim-go'
+  use 'wakatime/vim-wakatime'
 end)
 
-local catppuccino = require("catppuccino")
+local catppuccin = require("catppuccin")
 
 -- configure it
-catppuccino.setup(
+catppuccin.setup(
     {
 		colorscheme = "soft_manilo",
 		transparency = false,
@@ -156,16 +141,9 @@ vim.cmd[[colorscheme palenight]]
 
 local parser_configs = require('nvim-treesitter.parsers').get_parser_configs()
 
-parser_configs.norg = {
-    install_info = {
-        url = "https://github.com/nvim-neorg/tree-sitter-norg",
-        files = { "src/parser.c", "src/scanner.cc" },
-        branch = "main"
-    },
-}
 
 require('nvim-treesitter.configs').setup {
-	ensure_installed = { "norg", "haskell", "cpp", "c", "rust", "javascript", "typescript" }
+	ensure_installed = { "go", "haskell", "cpp", "c", "rust", "javascript", "typescript" }
 }
 
 local nvimlsp = require('lspconfig')
@@ -231,7 +209,7 @@ cmp.setup({
 })
 
 
-local servers = {'rust_analyzer', 'ocamllsp', 'ccls', 'tsserver', 'pyright', 'hls', 'texlab'}
+local servers = {'rust_analyzer', 'ocamllsp', 'ccls', 'tsserver', 'pyright', 'hls', 'texlab', 'gopls'}
 
 for _,lsp in ipairs(servers) do 
   nvim_lsp[lsp].setup {
@@ -240,7 +218,120 @@ for _,lsp in ipairs(servers) do
   }
 end
 
+local dap = require('dap')
+dap.adapters.go = function(callback, config)
+  local stdout = vim.loop.new_pipe(false)
+  local handle
+  local pid_or_err
+  local port = 38697
+  local opts = {
+    stdio = {nil, stdout},
+    args = {"dap", "-l", "127.0.0.1:" .. port},
+    detached = true
+  }
+  handle, pid_or_err = vim.loop.spawn("dlv", opts, function(code)
+    stdout:close()
+    handle:close()
+    if code ~= 0 then
+      print('dlv exited with code', code)
+    end
+  end)
+  assert(handle, 'Error running dlv: ' .. tostring(pid_or_err))
+  stdout:read_start(function(err, chunk)
+    assert(not err, err)
+    if chunk then
+      vim.schedule(function()
+        require('dap.repl').append(chunk)
+      end)
+    end
+  end)
+  -- Wait for delve to start
+  vim.defer_fn(
+    function()
+      callback({type = "server", host = "127.0.0.1", port = port})
+    end,
+    100)
+end
+-- https://github.com/go-delve/delve/blob/master/Documentation/usage/dlv_dap.md
+dap.configurations.go = {
+  {
+    type = "go",
+    name = "Debug",
+    request = "launch",
+    program = "${file}"
+  },
+  {
+    type = "go",
+    name = "Debug test", -- configuration for debugging test files
+    request = "launch",
+    mode = "test",
+    program = "${file}"
+  },
+  -- works with go.mod packages and sub packages 
+  {
+    type = "go",
+    name = "Debug test (go.mod)",
+    request = "launch",
+    mode = "test",
+    program = "./${relativeFileDirname}"
+  } 
+}
 
+require("nvim-dap-virtual-text").setup {
+    enabled = true,                     -- enable this plugin (the default)
+    enabled_commands = true,            -- create commands DapVirtualTextEnable, DapVirtualTextDisable, DapVirtualTextToggle, (DapVirtualTextForceRefresh for refreshing when debug adapter did not notify its termination)
+    highlight_changed_variables = true, -- highlight changed values with NvimDapVirtualTextChanged, else always NvimDapVirtualText
+    highlight_new_as_changed = false,   -- highlight new variables in the same way as changed variables (if highlight_changed_variables)
+    show_stop_reason = true,            -- show stop reason when stopped for exceptions
+    commented = false,                  -- prefix virtual text with comment string
+    -- experimental features:
+    virt_text_pos = 'eol',              -- position of virtual text, see `:h nvim_buf_set_extmark()`
+    all_frames = false,                 -- show virtual text for all stack frames not only current. Only works for debugpy on my machine.
+    virt_lines = false,                 -- show virtual lines instead of virtual text (will flicker!)
+    virt_text_win_col = nil             -- position the virtual text at a fixed window column (starting from the first text column) ,
+                                        -- e.g. 80 to position at column 80, see `:h nvim_buf_set_extmark()`
+}
+
+require("dapui").setup({
+  icons = { expanded = "▾", collapsed = "▸" },
+  mappings = {
+    -- Use a table to apply multiple mappings
+    expand = { "<CR>", "<2-LeftMouse>" },
+    open = "o",
+    remove = "d",
+    edit = "e",
+    repl = "r",
+  },
+  sidebar = {
+    -- You can change the order of elements in the sidebar
+    elements = {
+      -- Provide as ID strings or tables with "id" and "size" keys
+      {
+        id = "scopes",
+        size = 0.25, -- Can be float or integer > 1
+      },
+      { id = "breakpoints", size = 0.25 },
+      { id = "stacks", size = 0.25 },
+      { id = "watches", size = 00.25 },
+    },
+    size = 40,
+    position = "left", -- Can be "left", "right", "top", "bottom"
+  },
+  tray = {
+    elements = { "repl" },
+    size = 10,
+    position = "bottom", -- Can be "left", "right", "top", "bottom"
+  },
+  floating = {
+    max_height = nil, -- These can be integers or a float between 0 and 1.
+    max_width = nil, -- Floats will be treated as percentage of your screen.
+    border = "single", -- Border style. Can be "single", "double" or "rounded"
+    mappings = {
+      close = { "q", "<Esc>" },
+    },
+  },
+  windows = { indent = 1 },
+})
 
 require'nvim-web-devicons'.setup {
  -- your personnal icons can go here (to override)
@@ -273,3 +364,5 @@ vim.api.nvim_set_keymap('', '<space>ff', ':NvimTreeToggle<cr>', { silent = true,
 vim.api.nvim_set_keymap('', '<space>gg', ':Neogit<cr>', { silent = true, noremap = true })
 vim.api.nvim_set_keymap('', '<space>tt', ':Telescope<cr>', { silent = true, noremap = true })
 vim.api.nvim_set_keymap('', '<space>tg', ':Telescope<space>grep_string<cr>', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('', '<space>mk', ':Neomake!<cr>', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('', '<space>dd', ':lua require("dapui").toggle()<cr>', { silent = true, noremap = true })
