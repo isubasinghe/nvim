@@ -135,8 +135,8 @@ catppuccin.setup(
 
 
 -- Lua
--- vim.cmd[[colorscheme catppuccino]]
-vim.cmd[[colorscheme palenight]]
+vim.cmd[[colorscheme catppuccin]]
+-- vim.cmd[[colorscheme palenight]]
 
 
 local parser_configs = require('nvim-treesitter.parsers').get_parser_configs()
@@ -366,3 +366,22 @@ vim.api.nvim_set_keymap('', '<space>tt', ':Telescope<cr>', { silent = true, nore
 vim.api.nvim_set_keymap('', '<space>tg', ':Telescope<space>grep_string<cr>', { silent = true, noremap = true })
 vim.api.nvim_set_keymap('', '<space>mk', ':Neomake!<cr>', { silent = true, noremap = true })
 vim.api.nvim_set_keymap('', '<space>dd', ':lua require("dapui").toggle()<cr>', { silent = true, noremap = true })
+
+vim.api.nvim_set_keymap("", "<space>xx", "<cmd>Trouble<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("", "<space>xw", "<cmd>Trouble lsp_workspace_diagnostics<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("", "<space>xd", "<cmd>Trouble lsp_document_diagnostics<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("", "<space>xl", "<cmd>Trouble loclist<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("", "<space>xq", "<cmd>Trouble quickfix<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("", "gR", "<cmd>Trouble lsp_references<cr>",
+  {silent = true, noremap = true}
+)
