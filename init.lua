@@ -385,3 +385,7 @@ vim.api.nvim_set_keymap("", "<space>xq", "<cmd>Trouble quickfix<cr>",
 vim.api.nvim_set_keymap("", "gR", "<cmd>Trouble lsp_references<cr>",
   {silent = true, noremap = true}
 )
+
+vim.api.nvim_exec([[autocmd FileType haskell nnoremap <buffer> <space>fm :Neoformat! haskell ormolu<cr>]], false)
+vim.api.nvim_exec([[autocmd FileType go nnoremap <buffer> <space>fm :Neoformat! go gofumpt<cr>]], false)
+vim.api.nvim_exec([[autocmd FileType c nnoremap <buffer> <space>fm :Neoformat! c clang-format<cr>]], false)
