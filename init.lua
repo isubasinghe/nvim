@@ -35,6 +35,7 @@ require('packer').startup(function()
   use 'hrsh7th/cmp-nvim-lsp'
   use 'hrsh7th/cmp-buffer'
   use 'hrsh7th/nvim-cmp'
+  use 'hrsh7th/vim-vsnip'
   use 'simrat39/rust-tools.nvim'
   use 'kyazdani42/nvim-web-devicons'
   use { 'TimUntersberger/neogit', requires = 'nvim-lua/plenary.nvim' }
@@ -148,8 +149,6 @@ require('nvim-treesitter.configs').setup {
 
 local nvimlsp = require('lspconfig')
 
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 
 
 require('rust-tools').setup({})
@@ -192,8 +191,14 @@ cmp.setup({
       ['<C-e>'] = cmp.mapping.close(),
       ['<CR>'] = cmp.mapping.confirm({ select = true }),
     },
+    snippet = {
+      expand = function(args)
+        vim.fn["vsnip#anonymous"](args.body)
+      end,
+    },
     sources = {
       { name = 'nvim_lsp' },
+      { name = 'vsnip' },
 
       -- For vsnip user.
       -- { name = 'vsnip' },
@@ -208,6 +213,9 @@ cmp.setup({
     }
 })
 
+
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 
 local servers = {'rust_analyzer', 'ocamllsp', 'ccls', 'tsserver', 'pyright', 'hls', 'texlab', 'gopls'}
 
