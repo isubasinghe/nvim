@@ -71,9 +71,55 @@ require('packer').startup(function()
   use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
   use 'theHamsta/nvim-dap-virtual-text'
   use 'fatih/vim-go'
+  use {
+    'nvim-lualine/lualine.nvim',
+    requires = {'kyazdani42/nvim-web-devicons', opt = true}
+  }
+  --[[ use {
+  'glepnir/galaxyline.nvim',
+    branch = 'main',
+    -- some optional icons
+    requires = {'kyazdani42/nvim-web-devicons', opt = true}
+  } ]]
   use 'wakatime/vim-wakatime'
 end)
 
+require'lualine'.setup()
+
+--[[ local colors = {
+
+    bg = "#282c34",
+    line_bg = "#353644",
+    fg = '#8FBCBB',
+    fg_green = '#65a380',
+
+    yellow = '#fabd2f',
+    cyan = '#008080',
+    darkblue = '#081633',
+    green = '#afd700',
+    orange = '#FF8800',
+    purple = '#5d4d7a',
+    magenta = '#c678dd',
+    blue = '#51afef';
+    red = '#ec5f67'
+}
+
+require('galaxyline').section.left[1]= {
+  FileSize = {
+    provider = 'FileSize',
+    condition = function()
+      if vim.fn.empty(vim.fn.expand('%:t')) ~= 1 then
+        return true
+      end
+      return false
+      end,
+    icon = '   ',
+    highlight = {colors.green,colors.purple},
+    separator = '',
+    separator_highlight = {colors.purple,colors.darkblue},
+  }
+}
+ ]]
 local catppuccin = require("catppuccin")
 
 -- configure it
@@ -217,7 +263,7 @@ cmp.setup({
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 
-local servers = {'rust_analyzer', 'ocamllsp', 'ccls', 'tsserver', 'pyright', 'hls', 'texlab', 'gopls'}
+local servers = {'rust_analyzer', 'ocamllsp', 'ccls', 'tsserver', 'pyright', 'hls', 'texlab', 'gopls', 'terraformls'}
 
 for _,lsp in ipairs(servers) do 
   nvim_lsp[lsp].setup {
@@ -374,6 +420,9 @@ vim.api.nvim_set_keymap('', '<space>tt', ':Telescope<cr>', { silent = true, nore
 vim.api.nvim_set_keymap('', '<space>tg', ':Telescope<space>grep_string<cr>', { silent = true, noremap = true })
 vim.api.nvim_set_keymap('', '<space>mk', ':Neomake!<cr>', { silent = true, noremap = true })
 vim.api.nvim_set_keymap('', '<space>dd', ':lua require("dapui").toggle()<cr>', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('', '<space>rl', ':s/', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('', '<space>rg', ':%s/', { silent = true, noremap = true })
+
 
 vim.api.nvim_set_keymap("", "<space>xx", "<cmd>Trouble<cr>",
   {silent = true, noremap = true}
@@ -397,3 +446,6 @@ vim.api.nvim_set_keymap("", "gR", "<cmd>Trouble lsp_references<cr>",
 vim.api.nvim_exec([[autocmd FileType haskell nnoremap <buffer> <space>fm :Neoformat! haskell ormolu<cr>]], false)
 vim.api.nvim_exec([[autocmd FileType go nnoremap <buffer> <space>fm :Neoformat! go gofumpt<cr>]], false)
 vim.api.nvim_exec([[autocmd FileType c nnoremap <buffer> <space>fm :Neoformat! c clang-format<cr>]], false)
+vim.api.nvim_exec([[autocmd FileType rust nnoremap <buffer> <space>fm :Neoformat! rust rustfmt<cr>]], false)
+
+vim.api.nvim_exec([[au BufRead,BufNewFile *.cwl setfiletype yaml]], false)
