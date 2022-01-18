@@ -81,8 +81,17 @@ require('packer').startup(function()
     -- some optional icons
     requires = {'kyazdani42/nvim-web-devicons', opt = true}
   } ]]
+  use 'glepnir/zephyr-nvim'
+  use 'rockerBOO/boo-colorscheme-nvim'
+  use 'cocopon/iceberg.vim'
+  use "rebelot/kanagawa.nvim"
+  use "lukas-reineke/indent-blankline.nvim"
   use 'wakatime/vim-wakatime'
 end)
+
+vim.g.mapleader =';'
+vim.g.go_highlight_functions=1
+vim.g.go_highlight_function_calls=1
 
 require'lualine'.setup()
 
@@ -180,11 +189,29 @@ catppuccin.setup(
 	}
 )
 
+require('kanagawa').setup({
+    undercurl = true,           -- enable undercurls
+    commentStyle = "italic",
+    functionStyle = "italic",
+    keywordStyle = "italic",
+    statementStyle = "bold",
+    typeStyle = "NONE",
+    variablebuiltinStyle = "italic",
+    specialReturn = true,       -- special highlight for the return keyword
+    specialException = true,    -- special highlight for exception handling keywords 
+    transparent = false,        -- do not set background color
+    dimInactive = false,        -- dim inactive window `:h hl-NormalNC`
+    colors = {},
+    overrides = {},
+})
 
 -- Lua
-vim.cmd[[colorscheme catppuccin]]
+-- vim.cmd[[colorscheme catppuccin]]
 -- vim.cmd[[colorscheme palenight]]
-
+-- vim.cmd[[colorscheme zephyr]]
+-- vim.cmd[[colorscheme boo]]
+-- vim.cmd[[colorscheme iceberg]]
+vim.cmd[[colorscheme kanagawa]]
 
 local parser_configs = require('nvim-treesitter.parsers').get_parser_configs()
 
@@ -223,7 +250,7 @@ local on_attach = function(_, bufnr)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>so', [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]], opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>sy', [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]], opts)
   vim.cmd [[ command! Format execute 'lua vim.lsp.buf.formatting()' ]]
 end
 
@@ -280,7 +307,7 @@ dap.adapters.go = function(callback, config)
   local port = 38697
   local opts = {
     stdio = {nil, stdout},
-    args = {"dap", "-l", "127.0.0.1:" .. port},
+    args = {"dap", "-l", "127.0.0.1:" .. port, "--check-go-version=false"},
     detached = true
   }
   handle, pid_or_err = vim.loop.spawn("dlv", opts, function(code)
@@ -306,13 +333,13 @@ dap.adapters.go = function(callback, config)
     end,
     100)
 end
--- https://github.com/go-delve/delve/blob/master/Documentation/usage/dlv_dap.md
 dap.configurations.go = {
   {
     type = "go",
     name = "Debug",
     request = "launch",
-    program = "${file}"
+    program = "${file}", 
+    args = {"transpile", "simple.cwl", "input.yml"}
   },
   {
     type = "go",
@@ -423,6 +450,10 @@ vim.api.nvim_set_keymap('', '<space>dd', ':lua require("dapui").toggle()<cr>', {
 vim.api.nvim_set_keymap('', '<space>rl', ':s/', { silent = true, noremap = true })
 vim.api.nvim_set_keymap('', '<space>rg', ':%s/', { silent = true, noremap = true })
 
+vim.api.nvim_set_keymap('', '<leader>br', ':lua require("dap").toggle_breakpoint()<cr>', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('', '<leader>cn', ':lua require("dap").continue()<cr>', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('', '<leader>so', ':lua require("dap").step_over()<cr>', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('', '<leader>si', ':lua require("dap").step_into()<cr>', { silent = true, noremap = true })
 
 vim.api.nvim_set_keymap("", "<space>xx", "<cmd>Trouble<cr>",
   {silent = true, noremap = true}
