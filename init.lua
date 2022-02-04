@@ -69,24 +69,17 @@ require('packer').startup(function()
   use 'neomake/neomake'
   use 'mfussenegger/nvim-dap'
   use { "rcarriga/nvim-dap-ui", requires = {"mfussenegger/nvim-dap"} }
-  use 'theHamsta/nvim-dap-virtual-text'
   use 'fatih/vim-go'
   use {
     'nvim-lualine/lualine.nvim',
     requires = {'kyazdani42/nvim-web-devicons', opt = true}
   }
-  --[[ use {
-  'glepnir/galaxyline.nvim',
-    branch = 'main',
-    -- some optional icons
-    requires = {'kyazdani42/nvim-web-devicons', opt = true}
-  } ]]
   use 'glepnir/zephyr-nvim'
   use 'rockerBOO/boo-colorscheme-nvim'
   use 'cocopon/iceberg.vim'
   use "rebelot/kanagawa.nvim"
   use "lukas-reineke/indent-blankline.nvim"
-  use 'wakatime/vim-wakatime'
+  use "APZelos/blamer.nvim"
 end)
 
 vim.g.mapleader =';'
@@ -272,6 +265,7 @@ cmp.setup({
     sources = {
       { name = 'nvim_lsp' },
       { name = 'vsnip' },
+      { name = 'orgmode' },
 
       -- For vsnip user.
       -- { name = 'vsnip' },
