@@ -78,6 +78,8 @@ require('packer').startup(function()
   use "rebelot/kanagawa.nvim"
   use "lukas-reineke/indent-blankline.nvim"
   use "APZelos/blamer.nvim"
+  use 'junegunn/fzf'
+  use 'junegunn/fzf.vim'
 end)
 
 vim.g.mapleader =';'
