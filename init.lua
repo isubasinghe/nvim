@@ -12,7 +12,6 @@ vim.opt.completeopt='menuone,noselect'
 
 
 local use = require('packer').use
-vim.g.nvim_tree_quit_on_open = 1
 
 require('packer').startup(function()
   use 'wbthomason/packer.nvim'
@@ -60,7 +59,13 @@ require('packer').startup(function()
   use {
     'kyazdani42/nvim-tree.lua',
     requires = 'kyazdani42/nvim-web-devicons',
-    config = function() require'nvim-tree'.setup {} end
+    config = function() require'nvim-tree'.setup {
+      actions = {
+        open_file = {
+          quit_on_open = true
+        }
+      }
+    } end
   }
   use 'lervag/vimtex'
   use 'neovimhaskell/haskell-vim'
@@ -72,7 +77,6 @@ require('packer').startup(function()
     'nvim-lualine/lualine.nvim',
     requires = {'kyazdani42/nvim-web-devicons', opt = true}
   }
-  use 'glepnir/zephyr-nvim'
   use 'rockerBOO/boo-colorscheme-nvim'
   use 'cocopon/iceberg.vim'
   use "rebelot/kanagawa.nvim"
@@ -80,6 +84,7 @@ require('packer').startup(function()
   use "APZelos/blamer.nvim"
   use 'junegunn/fzf'
   use 'junegunn/fzf.vim'
+  use 'ziglang/zig.vim'
 end)
 
 vim.g.mapleader =';'
@@ -87,6 +92,7 @@ vim.g.go_highlight_functions=1
 vim.g.go_highlight_function_calls=1
 
 require'lualine'.setup()
+
 
 --[[ local colors = {
 
@@ -184,12 +190,12 @@ catppuccin.setup(
 
 require('kanagawa').setup({
     undercurl = true,           -- enable undercurls
-    commentStyle = "italic",
-    functionStyle = "italic",
-    keywordStyle = "italic",
-    statementStyle = "bold",
-    typeStyle = "NONE",
-    variablebuiltinStyle = "italic",
+    commentStyle = {italic = true } ,
+    functionStyle = {italic = true },
+    keywordStyle = {italic = true } ,
+    statementStyle = { bold = true},
+    typeStyle = {},
+    variablebuiltinStyle = {italic = true },
     specialReturn = true,       -- special highlight for the return keyword
     specialException = true,    -- special highlight for exception handling keywords 
     transparent = false,        -- do not set background color
@@ -284,7 +290,7 @@ cmp.setup({
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 
-local servers = {'rust_analyzer', 'ocamllsp', 'ccls', 'tsserver', 'pyright', 'hls', 'texlab', 'gopls', 'terraformls'}
+local servers = {'rust_analyzer', 'ocamllsp', 'ccls', 'tsserver', 'pyright', 'hls', 'texlab', 'gopls', 'terraformls', 'zls'}
 
 for _,lsp in ipairs(servers) do 
   nvim_lsp[lsp].setup {
@@ -329,6 +335,8 @@ vim.api.nvim_set_keymap('', '<space>mk', ':Neomake!<cr>', { silent = true, norem
 vim.api.nvim_set_keymap('', '<space>dd', ':lua require("dapui").toggle()<cr>', { silent = true, noremap = true })
 vim.api.nvim_set_keymap('', '<space>rl', ':s/', { silent = true, noremap = true })
 vim.api.nvim_set_keymap('', '<space>rg', ':%s/', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('', '<space>bp', ':bp<cr>', { silent = true, noremap = true })
+vim.api.nvim_set_keymap('', '<space>bn', ':bn<cr>', { silent = true, noremap = true })
 
 vim.api.nvim_set_keymap('', '<leader>br', ':lua require("dap").toggle_breakpoint()<cr>', { silent = true, noremap = true })
 vim.api.nvim_set_keymap('', '<leader>cn', ':lua require("dap").continue()<cr>', { silent = true, noremap = true })
